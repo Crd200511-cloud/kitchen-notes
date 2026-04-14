@@ -1,0 +1,21 @@
+{
+  "appid": "touristappid",
+  "projectname": "recipe-notes-miniapp",
+  "compileType": "miniprogram",
+  "libVersion": "3.6.4",
+  "miniprogramRoot": "./",
+  "srcMiniprogramRoot": "./",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "coverView": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmRelationList": [],
+    "ignoreUploadUnusedFiles": true,
+    "compileHotReLoad": true
+  },
+  "condition": {}
+}

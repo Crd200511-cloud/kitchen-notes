@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitchen Notes 食谱手账</title>
+    <meta
+      name="description"
+      content="一个可以记录菜名、材料和结构化做法步骤的轻量食谱网站，支持本地保存、搜索、编辑和导入整理。"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true">
+      <span class="backdrop__shape backdrop__shape--one"></span>
+      <span class="backdrop__shape backdrop__shape--two"></span>
+      <span class="backdrop__shape backdrop__shape--three"></span>
+    </div>
+
+    <main class="app-shell">
+      <section class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Kitchen Notes</p>
+          <h1>把菜谱拆成真正好填写、好回看的步骤卡片。</h1>
+          <p class="hero__desc">
+            现在这版已经不只是“写一大段做法”，而是按第一步、第二步逐条记录，还预留了从抖音或小红书内容导入并自动整理的入口。
+          </p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="#editor">开始记录</a>
+            <button class="button button--ghost" type="button" id="seed-demo">
+              恢复示例数据
+            </button>
+          </div>
+        </div>
+
+        <div class="hero__panel">
+          <div class="stat-card">
+            <span class="stat-card__label">已记录食谱</span>
+            <strong class="stat-card__value" id="recipe-total">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__label">材料条目</span>
+            <strong class="stat-card__value" id="ingredient-total">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__label">步骤数量</span>
+            <strong class="stat-card__value" id="step-total">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="editor-card" id="editor">
+          <div class="section-head">
+            <div>
+              <p class="section-head__eyebrow">Import + Editor</p>
+              <h2 id="editor-title">新增食谱</h2>
+            </div>
+            <p class="section-head__hint">做法现在支持逐步填写和调整顺序</p>
+          </div>
+
+          <section class="import-card" aria-labelledby="import-heading">
+            <div class="import-card__header">
+              <div>
+                <p class="section-head__eyebrow">Import Assistant</p>
+                <h3 id="import-heading">从笔记或视频分享内容整理</h3>
+              </div>
+              <span class="import-badge">第一版</span>
+            </div>
+
+            <label class="field">
+              <span class="field__label">导入文本类型</span>
+              <select class="field__control" id="import-mode">
+                <option value="note">完整笔记</option>
+                <option value="caption">分享文案</option>
+                <option value="transcript">口语教程整理</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">分享链接</span>
+              <input
+                class="field__control"
+                id="import-link"
+                type="url"
+                placeholder="粘贴抖音或小红书的分享链接，可选"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">分享文案或笔记正文</span>
+              <textarea
+                class="field__control field__control--import"
+                id="import-text"
+                placeholder="把你转发出来的文案、笔记正文、复制到的做法说明粘贴到这里，我会尽量自动拆出菜名、材料和步骤。"
+              ></textarea>
+            </label>
+
+            <div class="form__actions">
+              <button class="button button--primary" type="button" id="import-content">
+                自动整理到表单
+              </button>
+              <button class="button button--soft" type="button" id="import-with-ai">
+                AI 智能整理
+              </button>
+              <button class="button button--ghost" type="button" id="clear-import">
+                清空导入内容
+              </button>
+            </div>
+
+            <p class="form__note" id="import-note">
+              规则整理适合快速初筛；接入 API key 后，`AI 智能整理` 会更适合复杂、口语化或格式很乱的原文。
+            </p>
+
+            <section class="import-review" aria-labelledby="import-review-heading">
+              <div class="import-review__header">
+                <div>
+                  <p class="section-head__eyebrow">Import Review</p>
+                  <h4 id="import-review-heading">识别结果检查</h4>
+                </div>
+                <div class="import-review__stats">
+                  <span class="mini-stat" id="parsed-ingredient-count">材料 0</span>
+                  <span class="mini-stat" id="parsed-step-count">步骤 0</span>
+                </div>
+              </div>
+
+              <div class="import-review__grid">
+                <div class="review-box">
+                  <p class="review-box__label">识别到的菜名</p>
+                  <p class="review-box__value" id="parsed-title">暂未识别</p>
+                </div>
+                <div class="review-box">
+                  <p class="review-box__label">识别到的平台</p>
+                  <p class="review-box__value" id="parsed-platform">未识别</p>
+                </div>
+              </div>
+
+              <label class="field">
+                <span class="field__label">待确认内容</span>
+                <textarea
+                  class="field__control field__control--review"
+                  id="import-unresolved"
+                  readonly
+                  placeholder="识别不确定的内容会显示在这里，方便你手动补充。"
+                ></textarea>
+              </label>
+            </section>
+          </section>
+
+          <form id="recipe-form" class="form" novalidate>
+            <label class="field">
+              <span class="field__label">菜名</span>
+              <input
+                class="field__control"
+                id="recipe-name"
+                name="title"
+                placeholder="比如：红烧茄子"
+                autocomplete="off"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">来源链接（可选）</span>
+              <input
+                class="field__control"
+                id="recipe-source"
+                name="source"
+                type="url"
+                placeholder="记录这道菜来自哪个视频或笔记"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">材料</span>
+              <textarea
+                class="field__control field__control--tall"
+                id="recipe-ingredients"
+                name="ingredients"
+                placeholder="一行一个，比如：&#10;茄子 2根&#10;蒜末 1勺&#10;生抽 1勺"
+              ></textarea>
+            </label>
+
+            <label class="field">
+              <span class="field__label">补充备注 / 待确认内容</span>
+              <textarea
+                class="field__control field__control--review"
+                id="recipe-notes"
+                name="notes"
+                placeholder="这里可以保留导入时没完全识别清楚的内容，后面再慢慢整理。"
+              ></textarea>
+            </label>
+
+            <section class="step-builder" aria-labelledby="steps-heading">
+              <div class="step-builder__header">
+                <div>
+                  <p class="section-head__eyebrow">Step Builder</p>
+                  <h3 id="steps-heading">详细做法步骤</h3>
+                </div>
+                <button class="button button--soft" type="button" id="add-step">
+                  新增一步
+                </button>
+              </div>
+
+              <div id="steps-builder" class="step-builder__list"></div>
+            </section>
+
+            <div class="form__actions">
+              <button class="button button--primary" type="submit" id="submit-button">
+                保存食谱
+              </button>
+              <button class="button button--ghost" type="button" id="reset-form">
+                清空表单
+              </button>
+            </div>
+
+            <p class="form__note" id="form-note">
+              浏览器会自动保存在本地，你下次打开还能继续看。
+            </p>
+          </form>
+
+          <section class="preview-card" aria-labelledby="preview-heading">
+            <div class="preview-card__header">
+              <div>
+                <p class="section-head__eyebrow">Live Preview</p>
+                <h3 id="preview-heading">当前内容预览</h3>
+              </div>
+              <span class="preview-badge">实时同步</span>
+            </div>
+
+            <article class="recipe-sheet" id="live-preview"></article>
+          </section>
+        </aside>
+
+        <section class="library-card">
+          <div class="library-toolbar">
+            <div class="section-head">
+              <div>
+                <p class="section-head__eyebrow">Library</p>
+                <h2>我的食谱库</h2>
+              </div>
+              <p class="section-head__hint" id="library-hint">共 0 道菜</p>
+            </div>
+
+            <div class="toolbar-controls">
+              <label class="search-box">
+                <span class="search-box__icon" aria-hidden="true">⌕</span>
+                <input
+                  id="search-input"
+                  type="search"
+                  placeholder="搜索菜名、材料、步骤或来源"
+                  autocomplete="off"
+                />
+              </label>
+              <button class="button button--soft" type="button" id="clear-storage">
+                清空全部食谱
+              </button>
+            </div>
+          </div>
+
+          <div class="recipe-grid" id="recipe-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="recipe-card-template">
+      <article class="recipe-card">
+        <div class="recipe-card__header">
+          <div>
+            <h3 class="recipe-card__title"></h3>
+            <p class="recipe-card__meta"></p>
+          </div>
+          <div class="recipe-card__actions">
+            <button class="chip chip--edit" type="button" data-action="edit">编辑</button>
+            <button class="chip chip--danger" type="button" data-action="delete">删除</button>
+          </div>
+        </div>
+
+        <section class="recipe-card__section" data-role="source-section">
+          <p class="recipe-card__section-title">来源</p>
+          <p class="recipe-card__source" data-role="source"></p>
+        </section>
+
+        <section class="recipe-card__section" data-role="notes-section">
+          <p class="recipe-card__section-title">备注</p>
+          <p class="recipe-card__source" data-role="notes"></p>
+        </section>
+
+        <section class="recipe-card__section">
+          <p class="recipe-card__section-title">材料</p>
+          <ul class="bullet-list" data-role="ingredients"></ul>
+        </section>
+
+        <section class="recipe-card__section">
+          <p class="recipe-card__section-title">做法</p>
+          <ol class="step-list" data-role="steps"></ol>
+        </section>
+      </article>
+    </template>
+
+    <script src="./config.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

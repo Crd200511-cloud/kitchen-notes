@@ -1,0 +1,91 @@
+<view class="page">
+  <view class="hero">
+    <text class="hero__tag">Recipe Notes</text>
+    <text class="hero__title">把每一道家常菜认真记下来</text>
+    <text class="hero__desc">输入菜名、材料和做法，随手保存成自己的食谱库。</text>
+  </view>
+
+  <view class="panel form-panel">
+    <view class="panel__head">
+      <text class="panel__title">{{editingId ? '编辑食谱' : '新增食谱'}}</text>
+      <text class="panel__tip">材料和做法建议一行写一条</text>
+    </view>
+
+    <view class="field">
+      <text class="field__label">菜名</text>
+      <input
+        class="field__input"
+        placeholder="比如：番茄炒蛋"
+        value="{{form.title}}"
+        bindinput="handleTitleInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="field__label">材料</text>
+      <textarea
+        class="field__textarea"
+        placeholder="一行一个，比如：&#10;番茄 2个&#10;鸡蛋 3个&#10;盐 少许"
+        value="{{form.ingredientsText}}"
+        bindinput="handleIngredientsInput"
+      />
+    </view>
+
+    <view class="field">
+      <text class="field__label">做法</text>
+      <textarea
+        class="field__textarea field__textarea--steps"
+        placeholder="一行一步，比如：&#10;番茄切块&#10;鸡蛋打散下锅炒熟&#10;加入番茄翻炒后调味"
+        value="{{form.stepsText}}"
+        bindinput="handleStepsInput"
+      />
+    </view>
+
+    <view class="actions">
+      <button class="button button--primary" bindtap="submitRecipe">
+        {{editingId ? '更新食谱' : '保存食谱'}}
+      </button>
+      <button wx:if="{{editingId}}" class="button button--ghost" bindtap="resetForm">
+        取消编辑
+      </button>
+    </view>
+  </view>
+
+  <view class="panel list-panel">
+    <view class="panel__head">
+      <text class="panel__title">我的食谱</text>
+      <text class="panel__tip">共 {{recipes.length}} 道菜</text>
+    </view>
+
+    <view wx:if="{{recipes.length === 0}}" class="empty">
+      <text class="empty__title">还没有保存食谱</text>
+      <text class="empty__desc">先在上方录入第一道菜吧。</text>
+    </view>
+
+    <view wx:for="{{recipes}}" wx:key="id" class="recipe-card">
+      <view class="recipe-card__head">
+        <text class="recipe-card__title">{{item.title}}</text>
+        <view class="recipe-card__actions">
+          <text class="recipe-card__action" data-id="{{item.id}}" bindtap="startEdit">编辑</text>
+          <text class="recipe-card__action recipe-card__action--danger" data-id="{{item.id}}" bindtap="deleteRecipe">删除</text>
+        </view>
+      </view>
+
+      <view class="section">
+        <text class="section__title">材料</text>
+        <view wx:for="{{item.ingredients}}" wx:key="index" class="line-item">
+          <text class="line-item__dot"></text>
+          <text class="line-item__text">{{item}}</text>
+        </view>
+      </view>
+
+      <view class="section">
+        <text class="section__title">做法</text>
+        <view wx:for="{{item.steps}}" wx:key="index" class="step-item">
+          <text class="step-item__index">{{index + 1}}</text>
+          <text class="step-item__text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

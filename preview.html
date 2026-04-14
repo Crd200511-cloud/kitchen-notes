@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>食谱记录预览</title>
+    <style>
+      :root {
+        --bg-top: #fff8ef;
+        --bg-bottom: #fffdf8;
+        --card: rgba(255, 255, 255, 0.88);
+        --soft-card: #fffaf4;
+        --text: #2f241f;
+        --muted: #7d6350;
+        --line: #f1dcc8;
+        --accent: #cf5f25;
+        --accent-light: #ffe2c8;
+        --danger: #c25545;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      }
+
+      .shell {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .topbar__title {
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #a45018;
+        background: #ffe2c7;
+        padding: 8px 14px;
+        border-radius: 999px;
+      }
+
+      .topbar__hint {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 20px;
+      }
+
+      .panel {
+        background: var(--card);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: 0 16px 40px rgba(111, 71, 31, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .hero {
+        margin-bottom: 20px;
+      }
+
+      .hero h1 {
+        margin: 0 0 12px;
+        font-size: 38px;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.8;
+        color: var(--muted);
+      }
+
+      .panel__head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .panel__head h2 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .panel__head span {
+        font-size: 14px;
+        color: #997a64;
+      }
+
+      .field + .field {
+        margin-top: 18px;
+      }
+
+      .field label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .field input,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fffdf9;
+        padding: 16px;
+        font-size: 15px;
+        color: var(--text);
+        resize: vertical;
+      }
+
+      .field textarea {
+        min-height: 150px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 18px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .button-primary {
+        color: #fff;
+        background: linear-gradient(135deg, #e28b3e 0%, #cf5f25 100%);
+      }
+
+      .button-soft {
+        background: #fff4e8;
+        color: #9a582b;
+      }
+
+      .device {
+        background: #201816;
+        border-radius: 36px;
+        padding: 16px;
+        box-shadow: 0 24px 50px rgba(38, 25, 15, 0.16);
+      }
+
+      .device__screen {
+        overflow: hidden;
+        border-radius: 26px;
+        background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+        min-height: 720px;
+      }
+
+      .mini-nav {
+        padding: 18px 22px 12px;
+        text-align: center;
+        font-weight: 700;
+        background: rgba(255, 248, 239, 0.88);
+      }
+
+      .mini-page {
+        padding: 18px;
+      }
+
+      .mini-hero {
+        padding: 10px 6px 18px;
+      }
+
+      .mini-tag {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: #ffe2c7;
+        color: #a45018;
+        font-size: 12px;
+      }
+
+      .mini-title {
+        display: block;
+        margin-top: 14px;
+        font-size: 30px;
+        line-height: 1.25;
+        font-weight: 700;
+      }
+
+      .mini-desc {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .mini-panel {
+        margin-top: 16px;
+        background: rgba(255, 255, 255, 0.82);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: 0 12px 28px rgba(111, 71, 31, 0.08);
+      }
+
+      .mini-card {
+        margin-top: 14px;
+        background: var(--soft-card);
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .mini-card__head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .mini-card__title {
+        font-size: 22px;
+        font-weight: 700;
+      }
+
+      .mini-chip {
+        font-size: 12px;
+        color: #ad6534;
+      }
+
+      .mini-section {
+        margin-top: 16px;
+      }
+
+      .mini-section__title {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #6d4f38;
+      }
+
+      .line-item,
+      .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .line-item + .line-item,
+      .step-item + .step-item {
+        margin-top: 10px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        margin-top: 7px;
+        border-radius: 50%;
+        background: #e28b3e;
+        flex: 0 0 auto;
+      }
+
+      .step-index {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--accent-light);
+        color: #b25d21;
+        font-size: 12px;
+        line-height: 24px;
+        text-align: center;
+        font-weight: 700;
+        flex: 0 0 auto;
+      }
+
+      .mini-empty {
+        padding: 32px 18px;
+        background: #fff7ef;
+        border-radius: 18px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      .helper {
+        margin-top: 16px;
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .danger-text {
+        color: var(--danger);
+      }
+
+      @media (max-width: 920px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .device__screen {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="topbar">
+        <div class="topbar__title">Quick Preview</div>
+        <div class="topbar__hint">双击这个文件即可快速查看界面，不用导入微信开发者工具</div>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="hero">
+            <h1>食谱内容编辑区</h1>
+            <p>左边输入内容，右边会实时同步成接近微信小程序的预览效果，适合你随时查看版式和文案。</p>
+          </div>
+
+          <div class="panel__head">
+            <h2>预览数据</h2>
+            <span>修改后自动刷新</span>
+          </div>
+
+          <div class="field">
+            <label for="recipe-title">菜名</label>
+            <input id="recipe-title" value="番茄炒蛋" />
+          </div>
+
+          <div class="field">
+            <label for="ingredients">材料</label>
+            <textarea id="ingredients">番茄 2个
+鸡蛋 3个
+盐 少许
+食用油 1勺</textarea>
+          </div>
+
+          <div class="field">
+            <label for="steps">做法</label>
+            <textarea id="steps">番茄洗净切块
+鸡蛋打散备用
+热锅下油，倒入蛋液炒至凝固后盛出
+锅中放入番茄翻炒出汁
+倒回鸡蛋，加盐调味后翻炒均匀</textarea>
+          </div>
+
+          <div class="actions">
+            <button class="button-primary" id="load-demo">恢复示例内容</button>
+            <button class="button-soft" id="clear-data">清空内容</button>
+          </div>
+
+          <div class="helper">
+            查看方式：
+            直接打开 [app 内无法点击，这里只是文本] `/Users/chenruidong/Documents/New project/preview.html`
+            就能看。
+          </div>
+        </section>
+
+        <section class="device">
+          <div class="device__screen">
+            <div class="mini-nav">食谱记录</div>
+            <div class="mini-page">
+              <div class="mini-hero">
+                <span class="mini-tag">Recipe Notes</span>
+                <span class="mini-title">把每一道家常菜认真记下来</span>
+                <span class="mini-desc">输入菜名、材料和做法，随手保存成自己的食谱库。</span>
+              </div>
+
+              <div class="mini-panel">
+                <div class="panel__head">
+                  <h2>新增食谱</h2>
+                  <span>材料和做法建议一行写一条</span>
+                </div>
+                <div class="field">
+                  <label>菜名</label>
+                  <input id="preview-title" readonly />
+                </div>
+                <div class="field">
+                  <label>材料</label>
+                  <textarea id="preview-ingredients" readonly></textarea>
+                </div>
+                <div class="field">
+                  <label>做法</label>
+                  <textarea id="preview-steps" readonly></textarea>
+                </div>
+                <div class="actions">
+                  <button class="button-primary">保存食谱</button>
+                </div>
+              </div>
+
+              <div class="mini-panel">
+                <div class="panel__head">
+                  <h2>我的食谱</h2>
+                  <span id="recipe-count">共 1 道菜</span>
+                </div>
+                <div id="recipe-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const defaultData = {
+        title: "番茄炒蛋",
+        ingredients: "番茄 2个\n鸡蛋 3个\n盐 少许\n食用油 1勺",
+        steps: "番茄洗净切块\n鸡蛋打散备用\n热锅下油，倒入蛋液炒至凝固后盛出\n锅中放入番茄翻炒出汁\n倒回鸡蛋，加盐调味后翻炒均匀"
+      };
+
+      const titleInput = document.getElementById("recipe-title");
+      const ingredientsInput = document.getElementById("ingredients");
+      const stepsInput = document.getElementById("steps");
+      const previewTitle = document.getElementById("preview-title");
+      const previewIngredients = document.getElementById("preview-ingredients");
+      const previewSteps = document.getElementById("preview-steps");
+      const recipeList = document.getElementById("recipe-list");
+      const recipeCount = document.getElementById("recipe-count");
+      const loadDemoButton = document.getElementById("load-demo");
+      const clearButton = document.getElementById("clear-data");
+
+      function splitLines(text) {
+        return text
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      function escapeHTML(text) {
+        return text
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function renderPreview() {
+        const title = titleInput.value.trim();
+        const ingredients = splitLines(ingredientsInput.value);
+        const steps = splitLines(stepsInput.value);
+
+        previewTitle.value = title;
+        previewIngredients.value = ingredients.join("\n");
+        previewSteps.value = steps.join("\n");
+
+        if (!title && ingredients.length === 0 && steps.length === 0) {
+          recipeCount.textContent = "共 0 道菜";
+          recipeList.innerHTML = `
+            <div class="mini-empty">
+              <div>还没有预览内容</div>
+              <div style="margin-top: 8px;">左侧输入后，这里会实时显示效果。</div>
+            </div>
+          `;
+          return;
+        }
+
+        recipeCount.textContent = "共 1 道菜";
+        recipeList.innerHTML = `
+          <article class="mini-card">
+            <div class="mini-card__head">
+              <div class="mini-card__title">${escapeHTML(title || "未命名食谱")}</div>
+              <div class="mini-chip">预览中</div>
+            </div>
+            <div class="mini-section">
+              <span class="mini-section__title">材料</span>
+              ${
+                ingredients.length
+                  ? ingredients
+                      .map(
+                        (item) => `
+                        <div class="line-item">
+                          <span class="dot"></span>
+                          <span>${escapeHTML(item)}</span>
+                        </div>
+                      `
+                      )
+                      .join("")
+                  : '<div class="danger-text">暂未填写材料</div>'
+              }
+            </div>
+            <div class="mini-section">
+              <span class="mini-section__title">做法</span>
+              ${
+                steps.length
+                  ? steps
+                      .map(
+                        (item, index) => `
+                        <div class="step-item">
+                          <span class="step-index">${index + 1}</span>
+                          <span>${escapeHTML(item)}</span>
+                        </div>
+                      `
+                      )
+                      .join("")
+                  : '<div class="danger-text">暂未填写做法</div>'
+              }
+            </div>
+          </article>
+        `;
+      }
+
+      function fillForm(data) {
+        titleInput.value = data.title;
+        ingredientsInput.value = data.ingredients;
+        stepsInput.value = data.steps;
+        renderPreview();
+      }
+
+      [titleInput, ingredientsInput, stepsInput].forEach((element) => {
+        element.addEventListener("input", renderPreview);
+      });
+
+      loadDemoButton.addEventListener("click", () => fillForm(defaultData));
+      clearButton.addEventListener("click", () =>
+        fillForm({ title: "", ingredients: "", steps: "" })
+      );
+
+      fillForm(defaultData);
+    </script>
+  </body>
+</html>

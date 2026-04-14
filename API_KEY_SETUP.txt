@@ -1,0 +1,26 @@
+API Key 填写方法
+
+为了安全，请不要把你的 API key 发到聊天里。
+
+你可以直接在当前文件夹里双击：
+
+open-env.command
+
+它会自动：
+1. 检查 `.env` 是否存在
+2. 如果没有，就用 `.env.example` 创建一份
+3. 自动用 TextEdit 打开 `.env`
+
+打开后，把这一行：
+
+OPENAI_API_KEY=your_openai_api_key_here
+
+改成你的真实 OpenAI API key，然后保存。
+
+保存后，在项目目录运行：
+
+npm start
+
+然后在浏览器打开：
+
+http://127.0.0.1:3000

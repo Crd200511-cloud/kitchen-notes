@@ -1,0 +1,14 @@
+page {
+  min-height: 100%;
+  background: linear-gradient(180deg, #fff8ef 0%, #fffdf8 100%);
+  color: #2f241f;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+view,
+text,
+input,
+textarea,
+button {
+  box-sizing: border-box;
+}
