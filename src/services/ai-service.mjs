@@ -21,17 +21,18 @@ function getClient() {
   return client;
 }
 
+function supportsReasoning(modelName) {
+  return /^gpt-5/i.test(String(modelName || "").trim());
+}
+
 export async function parseRecipeWithAi({ rawText = "", sourceUrl = "", mode = "note" }) {
   if (!rawText && !sourceUrl) {
     throw new HttpError(400, "missing_input", "需要原文或链接");
   }
 
   const cleanedLines = normalizeLines(rawText).slice(0, 200);
-  const response = await getClient().responses.create({
+  const requestPayload = {
     model: env.openaiModel,
-    reasoning: {
-      effort: "low"
-    },
     input: [
       {
         role: "system",
@@ -94,7 +95,15 @@ export async function parseRecipeWithAi({ rawText = "", sourceUrl = "", mode = "
         }
       }
     }
-  });
+  };
+
+  if (supportsReasoning(env.openaiModel)) {
+    requestPayload.reasoning = {
+      effort: "low"
+    };
+  }
+
+  const response = await getClient().responses.create(requestPayload);
 
   return parseModelJson(response);
 }
