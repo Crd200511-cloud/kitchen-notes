@@ -40,6 +40,8 @@ window.KITCHEN_NOTES_CONFIG = {
 };
 ```
 
+如果你像现在这样把“网页和后端接口”一起部署在同一个 Render 服务里，那么 [config.js](/Users/chenruidong/Documents/New%20project/config.js) 可以保持为空，不需要单独填写线上 API 地址。
+
 ## 主要文件
 
 - `index.html`：网页结构

@@ -1198,6 +1198,10 @@ function isUsingRemoteApi() {
   return Boolean(getApiBaseUrl());
 }
 
+function isSameOriginHostedApp() {
+  return isServedFromLocalServer() && !isUsingRemoteApi();
+}
+
 async function importWithAi() {
   const rawText = elements.importText.value.trim();
   const sourceUrl = elements.importLink.value.trim();
@@ -1212,17 +1216,6 @@ async function importWithAi() {
     elements.importNote.textContent =
       "当前页面是本地文件模式打开的。请先运行 `npm start`，然后用浏览器打开 http://127.0.0.1:3000 再使用 AI 智能整理。";
     showToast("请通过 http://127.0.0.1:3000 打开网站后再用 AI");
-    return;
-  }
-
-  if (
-    !isUsingRemoteApi() &&
-    window.location.origin !== "http://127.0.0.1:3000" &&
-    window.location.origin !== "http://localhost:3000"
-  ) {
-    elements.importNote.textContent =
-      "当前页面不是本地同源服务，且还没有配置线上 API。请在 config.js 里填写 apiBaseUrl。";
-    showToast("请先在 config.js 里配置线上 API 地址");
     return;
   }
 
@@ -1378,6 +1371,9 @@ function init() {
   } else if (isUsingRemoteApi()) {
     elements.importNote.textContent =
       `当前已配置线上 API：${getApiBaseUrl()}。AI 智能整理会直接请求这个后端服务。`;
+  } else if (isSameOriginHostedApp()) {
+    elements.importNote.textContent =
+      "当前页面和 AI 接口使用同一个站点地址，不需要额外配置 config.js。";
   }
 
   renderPreview();
